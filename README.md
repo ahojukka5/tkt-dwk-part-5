@@ -4,6 +4,16 @@
 
 Link: <https://devopswithkubernetes.com/part-1>
 
+Contents:
+
+1. First Deploy
+2. Introduction to Debugging
+3. Introduction to Networking
+4. Introduction to Storage
+5. Summary
+
+Exercises:
+
 - Exercise 1.01: Getting started ([link](https://github.com/ahojukka5/tkt-dwk-part-1/tree/1.01))
 - Exercise 1.02: Project v0.1 ([link](https://github.com/ahojukka5/tkt-dwk-part-1/tree/1.02))
 - Exercise 1.03: Declarative approach ([link](https://github.com/ahojukka5/tkt-dwk-part-1/tree/1.03))
@@ -22,6 +32,17 @@ Link: <https://devopswithkubernetes.com/part-1>
 
 Link: <https://devopswithkubernetes.com/part-2>
 
+Contents:
+
+1. Networking between pods
+2. Organizing a cluster
+3. Configuring applications
+4. Statefulsets and Jobs
+5. Monitoring
+6. Summary
+
+Exercises:
+
 - Exercise 2.01: Connecting pods ([link](https://github.com/ahojukka5/tkt-dwk-part-2/tree/2.01))
 - Exercise 2.02: Project v1.0 ([link](https://github.com/ahojukka5/tkt-dwk-part-2/tree/2.02))
 - Exercise 2.03: Keep them separated ([link](https://github.com/ahojukka5/tkt-dwk-part-2/tree/2.03))
@@ -37,6 +58,15 @@ Link: <https://devopswithkubernetes.com/part-2>
 
 Link: <https://devopswithkubernetes.com/part-3>
 
+Contents:
+
+1. Introduction to Google Kubernetes Engine
+2. Deployment Pipeline
+3. GKE features
+4. Summary
+
+Exercises:
+
 - Exercise 3.01: Pingpong GKE ([link](https://github.com/ahojukka5/tkt-dwk-part-3/tree/3.01))
 - Exercise 3.02: Back to Ingress ([link](https://github.com/ahojukka5/tkt-dwk-part-3/tree/3.02))
 - Exercise 3.03: Project v1.4 ([link](https://github.com/ahojukka5/tkt-dwk-part-3/tree/3.03))
@@ -47,3 +77,46 @@ Link: <https://devopswithkubernetes.com/part-3>
 - Exercise 3.08: Project v1.5 ([link](https://github.com/ahojukka5/tkt-dwk-part-3/tree/3.08))
 - Exercise 3.09: Sensible processes ([link](https://github.com/ahojukka5/tkt-dwk-part-3/tree/3.09))
 - Exercise 3.10: Project v1.6 ([link](https://github.com/ahojukka5/tkt-dwk-part-3/tree/3.10))
+
+## Part 4
+
+Link: <https://devopswithkubernetes.com/part-4>
+
+Contents:
+
+1. Update Strategies and Prometheus
+2. Messaging Systems
+3. GitOps
+4. Summary
+
+Exercises:
+
+- Exercise 4.01: Readiness Probe ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.01))
+- Exercise 4.02: Project v1.7 ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.02))
+- Exercise 4.03: Prometheus ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.03))
+- Exercise 4.04: Project v1.8 ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.04))
+- Exercise 4.05: Project v1.9 ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.05))
+- Exercise 4.06: Project v2.0 ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.06))
+- Exercise 4.07: GitOpsify Cluster ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.07))
+- Exercise 4.08: Project v2.1 ([link](https://github.com/ahojukka5/tkt-dwk-part-4/tree/4.08))
+
+## Part 5
+
+Link: <https://devopswithkubernetes.com/part-5>
+
+Contents:
+
+1. Kubernetes Internals
+2. Custom Resource Definitions
+3. Service Mesh
+4. Beyond Kubernetes
+5. Summary and end
+
+Exercises:
+
+- Exercise 5.01: DIY CRD & Controller ([link](https://github.com/ahojukka5/tkt-dwk-part-5/tree/5.01))
+- Exercise 5.02: Project: Service Mesh Edition ([link](https://github.com/ahojukka5/tkt-dwk-part-5/tree/5.02))
+- Exercise 5.03: Learn from external material ([link](https://github.com/ahojukka5/tkt-dwk-part-5/tree/5.03))
+- Exercise 5.04: Platform comparison ([link](https://github.com/ahojukka5/tkt-dwk-part-5/tree/5.04))
+- Exercise 5.05: Deploy to Serverless ([link](https://github.com/ahojukka5/tkt-dwk-part-5/tree/5.05))
+- Exercise 5.06: Landscape ([link](https://github.com/ahojukka5/tkt-dwk-part-5/tree/5.06))

@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - exercises-namespace.yaml
+  - mainapp-config.yaml
+  - mainapp-deployment.yaml
+  - mainapp-service.yaml
+  - pingpong-deployment.yaml
+  - pingpong-sealedsecrets.yaml
+  - pingpong-secrets.yaml
+  - pingpong-service.yaml
+  - exercises-ingress.yaml
+# - pingpong-database.yaml

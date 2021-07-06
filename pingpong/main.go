@@ -10,61 +10,125 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const port = ":8000"
+func Getenv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
 
-func OpenConnection() *sql.DB {
+var port = ":" + Getenv("PINGPONG_APP_PORT", "8000")
+var pg_host = Getenv("POSTGRES_HOST", "pingpong-database-svc")
+var pg_port = Getenv("POSTGRES_PORT", "5432")
+var pg_user = Getenv("POSTGRES_USER", "postgres")
+var pg_password = Getenv("POSTGRES_PASSWORD", "")
+var pg_dbname = Getenv("POSTGRES_DATABASE", "postgres")
+var db_initialized = false
 
-	pg_host := "pingpong-database-svc"
-	pg_port := 5432
-	pg_user := "postgres"
-	pg_password := os.Getenv("POSTGRES_PASSWORD")
-	pg_dbname := "postgres"
+func OpenConnection() (*sql.DB, error) {
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		pg_host, pg_port, pg_user, pg_password, pg_dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return db
+	return db, nil
 }
 
-func InitDB() {
-	db := OpenConnection()
-	db.Exec("CREATE TABLE IF NOT EXISTS PingPongCounter (cnt int);")
+func InitDB() error {
+	if db_initialized {
+		return nil
+	}
+	db, err := OpenConnection()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS PingPongCounter (cnt int);")
+	if err != nil {
+		return err
+	}
 	var numberOfRows int
-	db.QueryRow("SELECT COUNT(*) FROM PingPongCounter;").Scan(&numberOfRows)
-	println("Number of rows in database =", numberOfRows)
-	if numberOfRows == 0 {
-		db.Exec("INSERT INTO PingPongCounter VALUES (0)")
+	err = db.QueryRow("SELECT COUNT(*) FROM PingPongCounter;").Scan(&numberOfRows)
+	if err != nil {
+		return err
 	}
+	log.Println("Number of rows in database =", numberOfRows)
+	if numberOfRows == 0 {
+		_, err = db.Exec("INSERT INTO PingPongCounter VALUES (0)")
+		if err != nil {
+			return err
+		}
+	}
+	db_initialized = true
+	return nil
 }
 
-func IncreasePingPongCounter() int {
-	db := OpenConnection()
+func IncreasePingPongCounter() (int, error) {
+	db, err := OpenConnection()
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
 	var cnt int
-	db.QueryRow("SELECT cnt FROM PingPongCounter LIMIT 1;").Scan(&cnt)
-	db.Exec("UPDATE PingPongCounter SET cnt = $1;", cnt+1)
-	return cnt
+	err = db.QueryRow("SELECT cnt FROM PingPongCounter LIMIT 1;").Scan(&cnt)
+	if err != nil {
+		return 0, err
+	}
+	cnt += 1
+	_, err = db.Exec("UPDATE PingPongCounter SET cnt = $1;", cnt)
+	if err != nil {
+		return 0, err
+	}
+	log.Println("Updated PingPongCounter to", cnt)
+	return cnt, nil
 }
 
 func RegisterPing(w http.ResponseWriter, r *http.Request) {
-	cnt := IncreasePingPongCounter()
-	println("PingPong called, cnt =", cnt)
-	fmt.Fprint(w, cnt)
+	cnt, err := IncreasePingPongCounter()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		msg := fmt.Sprintf(`{"message":"%s"}`, err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+		log.Println("Cannot ping:", err)
+	} else {
+		log.Println("PingPong called, cnt =", cnt)
+		fmt.Fprint(w, cnt)
+	}
+}
+
+func Healthz(w http.ResponseWriter, r *http.Request) {
+	err := InitDB()
+	if err != nil {
+		log.Println("Unable to initialize database: ", err)
+	}
+	if db_initialized {
+		log.Println("Ping/pong app health check: ready")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		log.Println("Ping/pong app health check: not ready")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 func main() {
-	InitDB()
+	err := InitDB()
+	if err != nil {
+		log.Println("Unable to initialize database: ", err)
+	} else {
+		log.Println("Database initialized!")
+	}
 	http.HandleFunc("/", RegisterPing)
 	http.HandleFunc("/pingpong", RegisterPing)
-	println("Ping/pong server listening in address http://localhost" + port)
-	err := http.ListenAndServe(port, nil)
+	http.HandleFunc("/healthz", Healthz)
+	log.Println("Ping/pong server listening in address http://localhost" + port)
+	err = http.ListenAndServe(port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

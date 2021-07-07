@@ -19,11 +19,13 @@ import (
 
 type ItemWithoutID struct {
 	Task string `json:"task"`
+	Done bool   `json:"done"`
 }
 
 type Item struct {
 	ID   primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 	Task string             `json:"task"`
+	Done bool               `json:"done"`
 }
 
 func Getenv(key, fallback string) string {
@@ -104,7 +106,6 @@ func getTodos(w http.ResponseWriter, r *http.Request) {
 
 func postTodo(w http.ResponseWriter, r *http.Request) {
 	log.Println("postTodo")
-	ctx := context.TODO()
 	client, err := GetClient()
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -123,6 +124,7 @@ func postTodo(w http.ResponseWriter, r *http.Request) {
 	}
 	item.ID = primitive.NewObjectID()
 	item.Task = itemWithoutID.Task
+	item.Done = false
 	log.Println("postTodo: new todo item: " + item.Task)
 	if len(item.Task) > 140 {
 		log.Println("postTodo: message is too long, over 140 characters!")
@@ -130,7 +132,7 @@ func postTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	collection := client.Database("todo").Collection("items")
-	result, err := collection.InsertOne(ctx, item)
+	result, err := collection.InsertOne(context.Background(), item)
 	if err != nil {
 		log.Println("Failed to insert to database:", err)
 		return
@@ -142,11 +144,36 @@ func postTodo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func updateTodo(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	log.Printf("postTodo with id %s", vars["id"])
+	client, err := GetClient()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		msg := fmt.Sprintf(`{"message":"%s"}`, err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+		log.Println("getTodos failed:", err)
+		return
+	}
+	collection := client.Database("todo").Collection("items")
+	id, _ := primitive.ObjectIDFromHex(vars["id"])
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": bson.M{"done": true}}
+	_, err = collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		msg := fmt.Sprintf(`{"message":"%s"}`, err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+		log.Println("getTodos failed:", err)
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/healthz", Healthz).Methods("GET")
 	router.HandleFunc("/todos", getTodos).Methods("GET")
 	router.HandleFunc("/todos", postTodo).Methods("POST")
+	router.HandleFunc("/todos/{id}", updateTodo).Methods("PUT")
 	println("Server listening in address http://localhost" + port)
 	http.ListenAndServe(port, router)
 }

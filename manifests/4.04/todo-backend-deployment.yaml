@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  namespace: todo
+  name: todo-backend-dep
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: todo-backend
+  strategy:
+    canary:
+      steps:
+        - setWeight: 50
+        - analysis:
+          templates:
+            - templateName: restart-rate
+  template:
+    metadata:
+      labels:
+        app: todo-backend
+    spec:
+      containers:
+        - name: todo-backend
+          image: ahojukka5/dwk-todo-backend:4.02
+          env:
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secrets
+                  key: MONGO_PASSWORD
+          resources:
+            limits:
+              cpu: "250m"
+              memory: "64Mi"
+          readinessProbe:
+            initialDelaySeconds: 10 # Initial delay until the readiness is tested
+            periodSeconds: 5 # How often to test
+            httpGet:
+              path: /healthz
+              port: 8000
+          imagePullPolicy: Always

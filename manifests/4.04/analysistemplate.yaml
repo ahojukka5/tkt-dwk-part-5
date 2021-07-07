@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: restart-rate
+spec:
+  metrics:
+    - name: restart-rate
+      initialDelay: 10m
+      successCondition: result < 50
+      provider:
+        prometheus:
+          address: prometheus-kube-prometheus-stack-1624-prometheus-0
+          query: |
+            avg(100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100))

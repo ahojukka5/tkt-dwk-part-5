@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - todo-namespace.yaml
+  - todo-sealed-secrets.yaml
+  - todo-cronjob.yaml
+  - todo-backend-deployment.yaml
+  - todo-backend-service.yaml
+  # - todo-database-deployment.yaml
+  - todo-database-service.yaml
+  - todo-frontend-deployment.yaml
+  - todo-frontend-service.yaml
+  - todo-frontend-ingress.yaml

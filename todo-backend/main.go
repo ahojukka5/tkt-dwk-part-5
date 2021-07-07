@@ -4,22 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
-
-const port = ":8000"
-
-var ctx = context.TODO()
-var collection = ConnectDB()
 
 type ItemWithoutID struct {
 	Task string `json:"task"`
@@ -37,44 +33,58 @@ func Getenv(key, fallback string) string {
 	return fallback
 }
 
-func getConnectionURI() string {
-	username := Getenv("MONGO_USERNAME", "root")
-	password := Getenv("MONGO_PASSWORD", "")
-	host := Getenv("MONGO_HOST", "todo-database-svc")
-	mongo_uri := "mongodb://" + username + ":" + password + "@" + host
-	return mongo_uri
-}
+var port = ":" + Getenv("TODO_BACKEND_PORT", "8000")
+var username = Getenv("MONGO_USERNAME", "root")
+var password = Getenv("MONGO_PASSWORD", "")
+var host = Getenv("MONGO_HOST", "todo-database-svc")
+var mongo_uri = "mongodb://" + username + ":" + password + "@" + host
 
-func ConnectDB() *mongo.Collection {
-	println(getConnectionURI())
-	clientOptions := options.Client().ApplyURI(getConnectionURI())
+func GetClient() (*mongo.Client, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	clientOptions := options.Client().ApplyURI(mongo_uri)
 	client, err := mongo.Connect(ctx, clientOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Connected to MongoDB!")
-	db := client.Database("todo")
-	col := db.Collection("items")
-	return col
+	return client, err
 }
 
-func Health(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	io.WriteString(w, `{"status": "ok"}`)
+func Healthz(w http.ResponseWriter, r *http.Request) {
+	client, _ := GetClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+	if client.Ping(ctx, readpref.Primary()) == nil {
+		log.Println("Todo backend app health check: ready")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		log.Println("Todo backend app health check: not ready")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 func getTodos(w http.ResponseWriter, r *http.Request) {
-	println("getTodos")
+	log.Println("getTodos")
+	ctx := context.TODO()
+	client, err := GetClient()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		msg := fmt.Sprintf(`{"message":"%s"}`, err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+		log.Println("getTodos failed:", err)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	var items []Item
-	println("getTodos: fetching collection")
+	log.Println("getTodos: fetching collection")
+	collection := client.Database("todo").Collection("items")
 	cur, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		fmt.Println(err)
+		w.Header().Set("Content-Type", "application/json")
+		msg := fmt.Sprintf(`{"message":"%s"}`, err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+		log.Println("getTodos failed:", err)
 		return
 	}
 	defer cur.Close(ctx)
-	println("getTodos: looping collection")
+	log.Println("getTodos: looping collection")
 	for cur.Next(ctx) {
 		var item Item
 		err := cur.Decode(&item)
@@ -84,7 +94,7 @@ func getTodos(w http.ResponseWriter, r *http.Request) {
 		}
 		items = append(items, item)
 	}
-	println("getTodos: encoding to json")
+	log.Println("getTodos: encoding to json")
 	err = json.NewEncoder(w).Encode(items)
 	if err != nil {
 		fmt.Println(err)
@@ -93,38 +103,48 @@ func getTodos(w http.ResponseWriter, r *http.Request) {
 }
 
 func postTodo(w http.ResponseWriter, r *http.Request) {
-	println("postTodo")
+	log.Println("postTodo")
+	ctx := context.TODO()
+	client, err := GetClient()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		msg := fmt.Sprintf(`{"message":"%s"}`, err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+		log.Println("getTodos failed:", err)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	var item Item
 	var itemWithoutID ItemWithoutID
-	err := json.NewDecoder(r.Body).Decode(&itemWithoutID)
+	err = json.NewDecoder(r.Body).Decode(&itemWithoutID)
 	if err != nil {
-		fmt.Println("Failed to parse input:", err)
+		log.Println("Failed to parse input:", err)
 		return
 	}
 	item.ID = primitive.NewObjectID()
 	item.Task = itemWithoutID.Task
-	println("postTodo: new todo item: " + item.Task)
+	log.Println("postTodo: new todo item: " + item.Task)
 	if len(item.Task) > 140 {
-		println("postTodo: message is too long, over 140 characters!")
+		log.Println("postTodo: message is too long, over 140 characters!")
 		http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 		return
 	}
+	collection := client.Database("todo").Collection("items")
 	result, err := collection.InsertOne(ctx, item)
 	if err != nil {
-		fmt.Println("Failed to insert to database:", err)
+		log.Println("Failed to insert to database:", err)
 		return
 	}
 	err = json.NewEncoder(w).Encode(result)
 	if err != nil {
-		fmt.Println("Failed to encode to json:", err)
+		log.Println("Failed to encode to json:", err)
 		return
 	}
 }
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/health", Health).Methods("GET")
+	router.HandleFunc("/healthz", Healthz).Methods("GET")
 	router.HandleFunc("/todos", getTodos).Methods("GET")
 	router.HandleFunc("/todos", postTodo).Methods("POST")
 	println("Server listening in address http://localhost" + port)

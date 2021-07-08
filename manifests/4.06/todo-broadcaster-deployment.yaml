@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: todo
+  name: todo-broadcaster-dep
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: todo-broadcaster
+  template:
+    metadata:
+      labels:
+        app: todo-broadcaster
+    spec:
+      containers:
+        - name: todo-broadcaster
+          image: ahojukka5/dwk-todo-broadcaster:4.06
+          env:
+            - name: NATS_URL
+              value: nats://nats.nats:4222
+            - name: EXTERNAL_URL
+              value: http://5f9092d7bf2d.ngrok.io
+          resources:
+            limits:
+              cpu: "250m"
+              memory: "64Mi"
+          imagePullPolicy: Always

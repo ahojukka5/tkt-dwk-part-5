@@ -15,6 +15,8 @@ resources:
 images:
 - name: ahojukka5/dwk-todo-backend
   newTag: ab2251306eb7ac2394164da9cbcd7804245a4879
+- name: ahojukka5/dwk-todo-broadcaster
+  newTag: 0fefd486c4a54171f0060028e46bedfe64916b44
 - name: ahojukka5/dwk-todo-cronjob
   newTag: 8fcb1537eca59440a08020c5d71ff6e6a74334ab
 - name: ahojukka5/dwk-todo-frontend

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/nats-io/nats.go"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,8 +39,9 @@ func Getenv(key, fallback string) string {
 var port = ":" + Getenv("TODO_BACKEND_PORT", "8000")
 var username = Getenv("MONGO_USERNAME", "root")
 var password = Getenv("MONGO_PASSWORD", "")
-var host = Getenv("MONGO_HOST", "todo-database-svc")
+var host = Getenv("MONGO_HOST", "localhost")
 var mongo_uri = "mongodb://" + username + ":" + password + "@" + host
+var nats_url = Getenv("NATS_URL", "nats://localhost:4222")
 
 func GetClient() (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -142,6 +144,9 @@ func postTodo(w http.ResponseWriter, r *http.Request) {
 		log.Println("Failed to encode to json:", err)
 		return
 	}
+	nc, _ := nats.Connect(nats_url)
+	nc.Publish("todo", []byte(`{"user": "todo-bot", "message": "New Todo item created!"}`))
+	nc.Close()
 }
 
 func updateTodo(w http.ResponseWriter, r *http.Request) {
@@ -166,6 +171,9 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		log.Println("getTodos failed:", err)
 	}
+	nc, _ := nats.Connect(nats_url)
+	nc.Publish("todo", []byte(`{"user": "todo-bot", "message": "Todo item updated!"}`))
+	nc.Close()
 }
 
 func main() {
@@ -175,5 +183,8 @@ func main() {
 	router.HandleFunc("/todos", postTodo).Methods("POST")
 	router.HandleFunc("/todos/{id}", updateTodo).Methods("PUT")
 	println("Server listening in address http://localhost" + port)
+	nc, _ := nats.Connect(nats_url)
+	nc.Publish("todo", []byte(`{"user": "todo-bot", "message": "Starting backend app!"}`))
+	nc.Close()
 	http.ListenAndServe(port, router)
 }

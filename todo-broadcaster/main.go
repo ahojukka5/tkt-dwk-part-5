@@ -1,6 +1,7 @@
 package main
 
-// to test app
+// to test this application, perform the following steps
+//
 // 1. start todo-json-echo
 // 2. ngrok http 8000
 // 3. change external url to todo-broadcaster-deployment.yaml

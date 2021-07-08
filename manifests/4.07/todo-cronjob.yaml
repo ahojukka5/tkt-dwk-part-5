@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: todo-cronjob
-              image: ahojukka5/dwk-todo-cronjob:4.06
+              image: ahojukka5/dwk-todo-cronjob:4.07
               env:
                 - name: MONGO_PASSWORD
                   valueFrom:

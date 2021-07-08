@@ -18,7 +18,7 @@ spec:
           emptyDir: {}
       containers:
         - name: todo-frontend
-          image: ahojukka5/dwk-todo-frontend:4.06
+          image: ahojukka5/dwk-todo-frontend:4.07
           volumeMounts:
             - name: cache
               mountPath: /var/cache/jukka

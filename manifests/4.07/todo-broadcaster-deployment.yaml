@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: todo-broadcaster
-          image: ahojukka5/dwk-todo-broadcaster:4.06
+          image: ahojukka5/dwk-todo-broadcaster:4.07
           env:
             - name: NATS_URL
               value: nats://nats.nats:4222

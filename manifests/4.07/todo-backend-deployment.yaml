@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: todo-backend
-          image: ahojukka5/dwk-todo-backend:4.06
+          image: ahojukka5/dwk-todo-backend:4.07
           env:
             - name: MONGO_HOST
               value: todo-database-svc

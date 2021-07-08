@@ -92,15 +92,6 @@ func getJson(url string, target interface{}) error {
 		log.Panic(err)
 	}
 	defer resp.Body.Close()
-	/*
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			println("todo-frontend: getJson: failed to read data")
-			log.Panic(err)
-		}
-		bodyString := string(bodyBytes)
-		println("todo-frontend: getJson: resp.body ", bodyString)
-	*/
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 

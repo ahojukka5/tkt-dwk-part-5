@@ -13,5 +13,7 @@ resources:
 - todo-frontend-service.yaml
 - todo-frontend-ingress.yaml
 images:
+- name: ahojukka5/dwk-todo-backend
+  newTag: ab2251306eb7ac2394164da9cbcd7804245a4879
 - name: ahojukka5/dwk-todo-frontend
   newTag: 2774939cbfb7af883079965216b411df69989315

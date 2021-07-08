@@ -65,7 +65,6 @@ func Healthz(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTodos(w http.ResponseWriter, r *http.Request) {
-	log.Println("getTodos")
 	ctx := context.TODO()
 	client, err := GetClient()
 	if err != nil {

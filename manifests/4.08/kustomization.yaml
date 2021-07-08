@@ -15,5 +15,7 @@ resources:
 images:
 - name: ahojukka5/dwk-todo-backend
   newTag: ab2251306eb7ac2394164da9cbcd7804245a4879
+- name: ahojukka5/dwk-todo-cronjob
+  newTag: 8fcb1537eca59440a08020c5d71ff6e6a74334ab
 - name: ahojukka5/dwk-todo-frontend
   newTag: 2774939cbfb7af883079965216b411df69989315

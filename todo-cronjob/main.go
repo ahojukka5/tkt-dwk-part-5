@@ -36,7 +36,6 @@ func getConnectionURI() string {
 }
 
 func ConnectDB() *mongo.Collection {
-	println(getConnectionURI())
 	clientOptions := options.Client().ApplyURI(getConnectionURI())
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {

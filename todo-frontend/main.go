@@ -77,19 +77,6 @@ type Item struct {
 	Task string `json:"task"`
 }
 
-/*
-var items = []Item{
-	{
-		ID:   1,
-		Task: "Buy coffee",
-	},
-	{
-		ID:   2,
-		Task: "Drink coffee",
-	},
-}
-*/
-
 type IndexData struct {
 	Picture string
 	Items   []Item

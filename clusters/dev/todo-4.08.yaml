@@ -2,14 +2,13 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
-  name: todo-4.07
+  name: todo-4.08
   namespace: flux-system
 spec:
   interval: 1m0s
-  path: ./manifests/4.07
+  path: ./manifests/4.08
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
   validation: client
-

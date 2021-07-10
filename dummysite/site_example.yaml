@@ -1,0 +1,7 @@
+apiVersion: ahojukka5.com/v1
+kind: DummySite
+metadata:
+  namespace: dummysites
+  name: www.example.com
+spec:
+  website_url: www.example.com

@@ -1,0 +1,7 @@
+apiVersion: ahojukka5.com/v1
+kind: DummySite
+metadata:
+  namespace: dummysites
+  name: devopswithkubernetes.com
+spec:
+  website_url: devopswithkubernetes.com

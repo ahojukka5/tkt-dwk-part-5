@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: dummysites
+  name: dummysites-controller-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummysites-controller
+  template:
+    metadata:
+      labels:
+        app: dummysites-controller
+    spec:
+      serviceAccountName: dummysites-controller-account
+      volumes:
+        - name: www
+          emptyDir: {}
+      containers:
+        - name: kubectl-proxy
+          image: lachlanevenson/k8s-kubectl:latest
+          command: ["kubectl", "proxy", "--port=8001"]
+        - name: debug
+          image: ahojukka5/dwk-controller-debug:latest
+          volumeMounts:
+            - name: www
+              mountPath: /www
+        - name: nginx
+          image: nginx:latest
+          volumeMounts:
+            - name: www
+              mountPath: /usr/share/nginx/html
+        - name: cloner
+          image: ahojukka5/dwk-controller:latest
+          volumeMounts:
+            - name: www
+              mountPath: /www
+          env:
+            - name: WWW_ROOT
+              value: /www

@@ -1,0 +1,10 @@
+apiVersion: k3d.io/v1alpha2
+kind: Simple
+ports:
+  - port: 80:80
+    nodeFilters:
+      - loadbalancer
+options:
+  k3s:
+    extraServerArgs:
+      - --no-deploy=traefik

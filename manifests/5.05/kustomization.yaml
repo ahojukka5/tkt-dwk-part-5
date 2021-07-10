@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # - https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/controller.yaml
+  # - https://github.com/knative/serving/releases/download/v0.18.0/serving-crds.yaml
+  # - https://github.com/knative/serving/releases/download/v0.18.0/serving-core.yaml
+  # - https://github.com/knative/net-contour/releases/download/v0.18.0/contour.yaml
+  # - https://github.com/knative/net-contour/releases/download/v0.18.0/net-contour.yaml
+  - exercises-namespace.yaml
+  - mainapp-config.yaml
+  - mainapp-knative-service.yaml
+  - pingpong-secrets.yaml
+  - pingpong-sealedsecrets.yaml
+  - pingpong-knative-service.yaml
+  - pingpong-database.yaml

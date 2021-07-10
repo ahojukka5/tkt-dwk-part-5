@@ -1,0 +1,19 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: pingpong-service
+spec:
+  template:
+    metadata:
+      name: pingpong-service-1
+    spec:
+      containers:
+        - image: ahojukka5/dwk-pingpong:5.05
+          env:
+            - name: PINGPONG_APP_PORT
+              value: "8080"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pingpong-secrets
+                  key: POSTGRES_PASSWORD

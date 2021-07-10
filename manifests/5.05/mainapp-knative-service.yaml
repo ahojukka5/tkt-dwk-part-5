@@ -1,0 +1,25 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: mainapp-service
+spec:
+  template:
+    metadata:
+      name: mainapp-service-1
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mainapp-config
+      containers:
+        - name: mainapp
+          image: ahojukka5/dwk-mainapp-read-timestamp:5.05
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+          env:
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: mainapp-config
+                  key: MSG1

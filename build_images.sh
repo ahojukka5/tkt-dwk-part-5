@@ -2,7 +2,7 @@
 
 set -e
 
-export TAG=4.08
+export TAG=5.05
 
 docker build -t ahojukka5/dwk-mainapp-gen-timestamp:$TAG mainapp/gen-timestamp && docker push ahojukka5/dwk-mainapp-gen-timestamp:$TAG
 docker build -t ahojukka5/dwk-mainapp-read-timestamp:$TAG mainapp/read-timestamp && docker push ahojukka5/dwk-mainapp-read-timestamp:$TAG

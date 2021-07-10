@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - todo-namespace.yaml
+  - todo-sealed-secrets.yaml
+  - todo-cronjob.yaml
+  - todo-broadcaster-deployment-injected.yaml
+  - todo-backend-deployment-injected.yaml
+  - todo-backend-service.yaml
+  - todo-database-deployment.yaml
+  - todo-database-service.yaml
+  - todo-frontend-deployment-injected.yaml
+  - todo-frontend-service.yaml
+  - todo-frontend-ingress.yaml
+images:
+  - name: ahojukka5/dwk-todo-backend
+    newTag: ab2251306eb7ac2394164da9cbcd7804245a4879
+  - name: ahojukka5/dwk-todo-broadcaster
+    newTag: 0fefd486c4a54171f0060028e46bedfe64916b44
+  - name: ahojukka5/dwk-todo-cronjob
+    newTag: 8fcb1537eca59440a08020c5d71ff6e6a74334ab
+  - name: ahojukka5/dwk-todo-frontend
+    newTag: 2774939cbfb7af883079965216b411df69989315

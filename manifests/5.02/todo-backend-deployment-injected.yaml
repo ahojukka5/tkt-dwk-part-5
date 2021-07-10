@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend-dep
+  namespace: todo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-backend
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: todo-backend
+    spec:
+      containers:
+        - env:
+            - name: MONGO_HOST
+              value: todo-database-svc
+            - name: MONGO_USERNAME
+              value: root
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_PASSWORD
+                  name: todo-secrets
+            - name: NATS_URL
+              value: nats://nats.nats:4222
+          image: ahojukka5/dwk-todo-backend:4.08
+          imagePullPolicy: Always
+          name: todo-backend
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            limits:
+              cpu: 250m
+              memory: 64Mi
+---
+

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-frontend-dep
+  namespace: todo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-frontend
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: todo-frontend
+    spec:
+      containers:
+        - image: ahojukka5/dwk-todo-frontend:4.08
+          imagePullPolicy: Always
+          name: todo-frontend
+          resources:
+            limits:
+              cpu: 250m
+              memory: 64Mi
+          volumeMounts:
+            - mountPath: /var/cache/jukka
+              name: cache
+      volumes:
+        - emptyDir: {}
+          name: cache
+---
+
